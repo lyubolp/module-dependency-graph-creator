@@ -156,6 +156,7 @@ version = "0.1.0"
 dependencies = [
  "petgraph",
  "regex",
+ "ruff_python_ast",
  "ruff_python_parser",
  "walkdir",
 ]
