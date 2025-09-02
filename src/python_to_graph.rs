@@ -1,18 +1,27 @@
-use std::{collections::HashSet, fs::read};
-// use petgraph::graph::{UnGraph};
+use std::{collections::HashSet, fs::read, path::Path};
 
 use ruff_python_parser;
 use ruff_python_ast::Stmt;
 
-use crate::python_utils::{extract_module_name, split_import};
+use crate::python_utils::{extract_module_name, is_import_internal, split_import};
+use crate::graph::Graph;
 
-pub fn build_dependency_graph(files: Vec<String>, root_dir: &str) {
+pub fn build_dependency_graph(files: Vec<String>, root_dir: &str) -> Graph {
+    let mut graph = Graph::new();
 
     for filepath in files {
-        let deps = get_all_dependencies(&filepath, root_dir);
+        let module = String::from(Path::new(&filepath).file_stem().unwrap().to_str().unwrap());
 
-        println!("{} -> {:?}", filepath, deps)
+        _ = graph.add_node(&module);
+
+
+        for dependency in get_all_dependencies(&filepath, root_dir) {
+            _ = graph.add_node(&dependency);
+            _ = graph.add_edge(&module, &dependency);
+        }
     }
+
+    graph
 }
 
 
@@ -44,6 +53,7 @@ fn extract_names(item: Stmt, root_dir: &str) -> HashSet<String> {
     names
         .iter()
         .map(|name|extract_module_name(name, root_dir))
+        .filter(|name| is_import_internal(name, root_dir))
         .map(|name| split_import(&name).pop().unwrap_or(String::new()))
         .filter(|name| name != "")
         .collect()
