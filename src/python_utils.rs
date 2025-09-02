@@ -7,7 +7,7 @@ pub fn is_import_internal(import: &String, root_dir: &str) -> bool {
     current_path.is_dir()
 }
 
-pub fn split_import(import: &String) -> Vec<String> {
+pub fn split_import(import: &str) -> Vec<String> {
     import.split(".").map(|s| String::from(s)).collect()
 }
 
