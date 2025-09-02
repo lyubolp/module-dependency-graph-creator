@@ -4,7 +4,6 @@ use std::path::{Path, PathBuf};
 pub fn is_import_internal(import: &String, root_dir: &str) -> bool {
     let current_path = Path::new(root_dir).join(&split_import(import)[0]);
 
-
     current_path.is_dir()
 }
 
