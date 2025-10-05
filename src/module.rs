@@ -1,13 +1,35 @@
-use crate::python_utils::split_import;
+use std::fmt::{Display, Formatter};
 
+#[derive(Clone, Hash, Eq, PartialEq, Debug)]
 pub struct PythonModule {
     name: String,
-    long_name: Vec<String>
+    packages: Vec<String>,
 }
 
 impl PythonModule {
-    pub fn new(name: &str, long_name: &str) -> Self {
-        PythonModule { name: String::from(name), long_name: split_import(long_name) }
-        
+    pub fn new(name: &str, packages: &Vec<String>) -> Self {
+        PythonModule {
+            name: String::from(name),
+            packages: packages.clone(),
+        }
+    }
+
+    pub fn get_name(&self) -> &String {
+        &self.name
+    }
+
+    pub fn get_packages(&self) -> &Vec<String> {
+        &self.packages
+    }
+}
+
+impl Display for PythonModule {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "Module '{}' with dependencies: [{}]",
+            self.name,
+            self.packages.join(", ")
+        )
     }
 }
