@@ -5,10 +5,12 @@ mod graph_to_uml;
 mod module;
 mod python_to_graph;
 mod python_utils;
+mod tree;
 
 use crate::file_utils::discover_files;
 use crate::graph_to_uml::generate_plantuml;
 use crate::python_to_graph::build_dependency_graph;
+use crate::tree::{Node, insert, bfs};
 
 fn main() {
     let root_dir = "/home/lyubolp/pygrader";
@@ -23,8 +25,8 @@ fn main() {
     //         println!("{} -> {:?}", node, edges);
     //     }
     // }
-
     for line in content {
         println!("{}", line)
     }
+
 }

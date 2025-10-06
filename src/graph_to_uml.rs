@@ -1,4 +1,5 @@
 use crate::{graph::Graph, module::PythonModule};
+use crate::tree::{Node, insert};
 
 pub fn generate_plantuml(graph: &Graph<PythonModule>) -> Vec<String> {
     let colors: Vec<&str> = vec![
@@ -22,6 +23,16 @@ pub fn generate_plantuml(graph: &Graph<PythonModule>) -> Vec<String> {
 
     result.push(String::from(""));
     // TODO - Probably need a tree representation of the modules to properly nest them
+
+    let mut root = Node::new(String::from("pygrader"));
+
+    for node in graph.get_nodes() {
+        let mut packages: Vec<String> = node.get_packages().iter().filter(|item| *item != "").map(|item| item.clone()).collect();
+        packages.push(node.get_name().clone());
+
+        insert(&mut root, packages);
+    }
+
 
     for node in graph.get_nodes() {
         let content = String::from(&format!("[\"{}\"]", node.get_name()));
