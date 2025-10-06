@@ -18,11 +18,11 @@ fn main() {
 
     let content = generate_plantuml(&graph);
 
-    for node in graph.get_nodes() {
-        if let Ok(edges) = graph.get_edges(node) {
-            println!("{} -> {:?}", node, edges);
-        }
-    }
+    // for node in graph.get_nodes() {
+    //     if let Ok(edges) = graph.get_edges(node) {
+    //         println!("{} -> {:?}", node, edges);
+    //     }
+    // }
 
     for line in content {
         println!("{}", line)
