@@ -1,19 +1,22 @@
-use std::{collections::VecDeque, fmt::{Display, Formatter}};
+use std::{
+    collections::VecDeque,
+    fmt::{Display, Formatter},
+};
 
-pub struct Node {
+pub struct TreeNode {
     value: String,
-    children: Vec<Box<Node>>,
+    children: Vec<Box<TreeNode>>,
 }
 
-impl Node {
+impl TreeNode {
     pub fn new(value: String) -> Self {
-        Node {
+        TreeNode {
             value,
             children: Vec::new(),
         }
     }
 
-    pub fn add_child(&mut self, child: Node) {
+    pub fn add_child(&mut self, child: TreeNode) {
         self.children.push(Box::new(child));
     }
 
@@ -21,16 +24,18 @@ impl Node {
         &self.value
     }
 
-    pub fn get_children(&self) -> &Vec<Box<Node>> {
+    pub fn get_children(&self) -> &Vec<Box<TreeNode>> {
         &self.children
     }
-
-    
 }
 
-impl Display for Node {
+impl Display for TreeNode {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let children_names: Vec<String> = self.children.iter().map(|item| item.value.clone()).collect();
+        let children_names: Vec<String> = self
+            .children
+            .iter()
+            .map(|item| item.value.clone())
+            .collect();
         write!(
             f,
             "Node '{}' with children: [{}]",
@@ -40,7 +45,7 @@ impl Display for Node {
     }
 }
 
-pub fn insert(root: &mut Node, parts: Vec<String>) {
+pub fn insert(root: &mut TreeNode, parts: Vec<String>) {
     let Some(top) = parts.first() else {
         // No more stuff to insert, we are done
         return;
@@ -54,23 +59,20 @@ pub fn insert(root: &mut Node, parts: Vec<String>) {
     }
 
     // New node, let's add it
-    let new_node = Node::new(top.clone());
+    let new_node = TreeNode::new(top.clone());
     root.add_child(new_node);
-
 }
 
-pub fn bfs(root: &Node) {
-    let mut queue: VecDeque<(&Node, u32)> = VecDeque::from([(root, 0)]);
-
+pub fn bfs(root: &TreeNode) {
+    let mut queue: VecDeque<(&TreeNode, u32)> = VecDeque::from([(root, 0)]);
 
     while !queue.is_empty() {
         let (node, level) = queue.pop_front().unwrap();
 
-        println!("level {}: {}", level, node.value);
+        println!("level {}: {}", level, node.get_value());
 
-        for child in node.children.iter() {
+        for child in node.get_children().iter() {
             queue.push_back((&child, level + 1));
         }
     }
-
 }
