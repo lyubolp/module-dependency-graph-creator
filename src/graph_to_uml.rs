@@ -1,4 +1,4 @@
-use std::collections::{HashSet, VecDeque};
+use std::collections::HashSet;
 
 use crate::tree::{TreeNode, insert};
 use crate::{graph::Graph, module::PythonModule};
@@ -28,19 +28,11 @@ pub fn generate_plantuml(graph: &Graph<PythonModule>) -> Vec<String> {
 
     let tree_node = build_tree_from_dependency_graph(graph);
 
-    let modules: HashSet<String> = graph
-        .get_nodes()
-        .map(|item| item.get_name().clone())
-        .collect();
-
-    for item in declare_modules_into_packages(&tree_node, &modules) {
+    let mut buffer: Vec<String> = vec![];
+    declare_modules_into_packages(&tree_node, 0, &mut buffer);
+    for item in buffer {
         result.push(item);
     }
-
-    // for node in graph.get_nodes() {
-    //     let content = String::from(&format!("[\"{}\"]", node.get_name()));
-    //     result.push(content);
-    // }
 
     result.push(String::from(""));
 
@@ -81,24 +73,23 @@ fn build_tree_from_dependency_graph(graph: &Graph<PythonModule>) -> TreeNode {
     root
 }
 
-fn declare_modules_into_packages(tree_root: &TreeNode, modules: &HashSet<String>) -> Vec<String> {
-    let mut result: Vec<String> = vec![];
-
-    let mut queue: VecDeque<(&TreeNode, u32)> = VecDeque::from([(tree_root, 0)]);
-
-    while !queue.is_empty() {
-        let (node, level) = queue.pop_back().unwrap();
-        let node_name = node.get_value();
-
-        if modules.contains(node_name) {
-            result.push(String::from(&format!("[\"{}\"]", node_name)));
-        } else {
-            result.push(String::from(&format!("package \"{}\" {{", node_name)));
+fn declare_modules_into_packages(root: &TreeNode, level: usize, buffer: &mut Vec<String>) {
+    if root.get_children().len() == 0 {
+        buffer.push(String::from(format!(
+            "{}[\"{}\"]",
+            " ".repeat(level * 4),
+            root.get_value()
+        )));
+        return;
+    } else {
+        buffer.push(String::from(format!(
+            "{}package \"{}\" {{",
+            " ".repeat(level * 4),
+            root.get_value()
+        )));
+        for child in root.get_children().iter().rev() {
+            declare_modules_into_packages(child, level + 1, buffer);
         }
-
-        for child in node.get_children().iter() {
-            queue.push_back((&child, level + 1));
-        }
+        buffer.push(String::from(format!("{}{}", " ".repeat(level * 4), "}")));
     }
-    result
 }

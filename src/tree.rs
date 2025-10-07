@@ -1,7 +1,4 @@
-use std::{
-    collections::VecDeque,
-    fmt::{Display, Formatter},
-};
+use std::fmt::{Display, Formatter};
 
 pub struct TreeNode {
     value: String,
@@ -51,28 +48,19 @@ pub fn insert(root: &mut TreeNode, parts: Vec<String>) {
         return;
     };
 
+    let mut is_child_existing = false;
     for child in root.children.iter_mut() {
         if child.value == top.clone() {
             // We have to insert here
-            return insert(child, parts[1..].to_vec());
+            insert(child, parts[1..].to_vec());
+            is_child_existing = true;
         }
     }
 
     // New node, let's add it
-    let new_node = TreeNode::new(top.clone());
-    root.add_child(new_node);
-}
-
-pub fn bfs(root: &TreeNode) {
-    let mut queue: VecDeque<(&TreeNode, u32)> = VecDeque::from([(root, 0)]);
-
-    while !queue.is_empty() {
-        let (node, level) = queue.pop_front().unwrap();
-
-        println!("level {}: {}", level, node.get_value());
-
-        for child in node.get_children().iter() {
-            queue.push_back((&child, level + 1));
-        }
+    if !is_child_existing {
+        let new_node = TreeNode::new(top.clone());
+        root.add_child(new_node);
+        insert(root.children.last_mut().unwrap(), parts[1..].to_vec());
     }
 }
