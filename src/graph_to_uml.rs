@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 use crate::tree::{TreeNode, insert};
 use crate::{graph::Graph, module::PythonModule};
 
@@ -15,6 +13,28 @@ pub fn generate_plantuml(graph: &Graph<PythonModule>) -> Vec<String> {
 
     result.push(String::from(""));
 
+    result.extend(declare_diagram_style());
+
+    result.push(String::from(""));
+
+    let tree_node = build_tree_from_dependency_graph(graph);
+    let mut buffer: Vec<String> = vec![];
+
+    declare_modules_into_packages(&tree_node, 0, &mut buffer);
+    for item in buffer {
+        result.push(item);
+    }
+
+    result.push(String::from(""));
+
+    result.extend(declare_connections(graph, colors));
+
+    result.push(String::from("@enduml"));
+    result
+}
+
+fn declare_diagram_style() -> Vec<String> {
+    let mut result = vec![];
     result.push(String::from("skinparam packageStyle rectangle"));
     result.push(String::from("skinparam linetype ortho"));
     result.push(String::from("skinparam class {"));
@@ -23,19 +43,11 @@ pub fn generate_plantuml(graph: &Graph<PythonModule>) -> Vec<String> {
     result.push(String::from("}"));
     result.push(String::from("left to right direction"));
 
-    result.push(String::from(""));
-    // TODO - Probably need a tree representation of the modules to properly nest them
+    result
+}
 
-    let tree_node = build_tree_from_dependency_graph(graph);
-
-    let mut buffer: Vec<String> = vec![];
-    declare_modules_into_packages(&tree_node, 0, &mut buffer);
-    for item in buffer {
-        result.push(item);
-    }
-
-    result.push(String::from(""));
-
+fn declare_connections(graph: &Graph<PythonModule>, colors: Vec<&str>) -> Vec<String> {
+    let mut result: Vec<String> = vec![];
     for node in graph.get_nodes() {
         if let Ok(edges) = graph.get_edges(node) {
             for (i, edge) in edges.iter().enumerate() {
@@ -50,8 +62,6 @@ pub fn generate_plantuml(graph: &Graph<PythonModule>) -> Vec<String> {
             result.push(String::from(""));
         }
     }
-
-    result.push(String::from("@enduml"));
     result
 }
 
